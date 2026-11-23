@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nihonshi-v2/ledger/schema.json",
+  "title": "知識台帳（案）",
+  "description": "日本史学習システム V2 の知識台帳。docs/knowledge-ledger-spec.md の案をデータ形式にしたもの。",
+  "type": "object",
+  "required": ["knowledge", "relations"],
+  "properties": {
+    "note": {"type": "string"},
+    "knowledge": {"type": "array", "items": {"$ref": "#/$defs/knowledge"}},
+    "relations": {"type": "array", "items": {"$ref": "#/$defs/relation"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^K[0-9]{6}$"},
+    "level": {"enum": ["必須", "頻出", "標準", "発展", "対象外", "未判定"]},
+    "importance_entry": {
+      "type": "object",
+      "required": ["level", "basis", "provisional"],
+      "properties": {
+        "level": {"$ref": "#/$defs/level"},
+        "basis": {"type": "string"},
+        "provisional": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "knowledge": {
+      "type": "object",
+      "required": ["id", "type", "name", "reading", "reading_status", "era", "fields", "summary",
+                   "textbook", "importance", "exam_evidence", "depth", "lessons", "verification"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "type": {"enum": ["用語", "出来事", "人物", "制度", "法令", "作品", "場所", "集団", "史料", "概念"]},
+        "name": {"type": "string", "minLength": 1},
+        "aliases": {"type": "array", "items": {"type": "string"}},
+        "reading": {"type": "string", "pattern": "^[ぁ-ゖー・　 ]+$"},
+        "reading_status": {"enum": ["確認済み", "未確認"]},
+        "era": {"enum": ["原始", "古代", "中世", "近世", "近代", "現代"]},
+        "period": {"type": "string"},
+        "date": {
+          "type": "object",
+          "properties": {
+            "start": {"type": "string"},
+            "end": {"type": "string"},
+            "label": {"type": "string"},
+            "precision": {"enum": ["日", "月", "年", "年代", "世紀", "時代"]}
+          },
+          "additionalProperties": false
+        },
+        "fields": {"type": "array", "minItems": 1, "items": {"enum": ["政治", "外交", "経済", "社会", "文化", "思想・宗教"]}},
+        "summary": {"type": "string"},
+        "background": {"type": "string"},
+        "result": {"type": "string"},
+        "textbook": {
+          "type": "object",
+          "required": ["status", "check"],
+          "properties": {
+            "status": {"enum": ["本文", "注", "図版・説明文", "史料", "コラム", "記載なし", "未確認"]},
+            "book": {"type": "string"},
+            "pages": {"type": "array", "items": {"type": "integer", "minimum": 1}},
+            "location": {"type": "string"},
+            "check": {
+              "type": "object",
+              "required": ["method"],
+              "properties": {
+                "method": {"enum": ["原本", "画像", "OCR", "未確認"]},
+                "ocr_reliability": {"enum": ["高", "中", "低", "不明"]},
+                "checked_at": {"type": ["string", "null"]}
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "importance": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"pattern": "^[a-z][a-z0-9_]*$"},
+          "additionalProperties": {"$ref": "#/$defs/importance_entry"}
+        },
+        "exam_evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["exam", "year", "role", "source"],
+            "properties": {
+              "exam": {"type": "string"},
+              "year": {"type": "integer"},
+              "question": {"type": "string"},
+              "role": {"enum": ["正解", "選択肢", "リード文", "設問文", "史料", "図表", "解答の根拠", "講評での言及"]},
+              "source": {"enum": ["原本", "二次資料", "未確認"]},
+              "checked_at": {"type": ["string", "null"]}
+            },
+            "additionalProperties": false
+          }
+        },
+        "depth": {"enum": ["名前のみ", "一文", "因果", "構造"]},
+        "pitfalls": {"type": "array", "items": {"type": "string"}},
+        "lessons": {
+          "type": "object",
+          "properties": {
+            "first": {"type": ["string", "null"]},
+            "reappear": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["lesson", "purpose"],
+                "properties": {
+                  "lesson": {"type": "string"},
+                  "purpose": {"enum": ["想起", "比較", "因果の回収", "発展", "伏線"]},
+                  "note": {"type": "string"}
+                },
+                "additionalProperties": false
+              }
+            },
+            "theme": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["lesson", "purpose"],
+                "properties": {
+                  "lesson": {"type": "string"},
+                  "purpose": {"enum": ["想起", "比較", "因果の回収", "発展", "伏線"]},
+                  "note": {"type": "string"}
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "quiz_ids": {"type": "array", "items": {"type": "string"}},
+        "media": {"type": "array", "items": {"type": "string"}},
+        "v1_refs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["pack"],
+            "properties": {
+              "pack": {"type": "string"},
+              "lesson": {"type": "string"},
+              "quiz": {"type": "array", "items": {"type": "integer"}}
+            },
+            "additionalProperties": false
+          }
+        },
+        "verification": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": {"enum": ["下書き", "根拠確認中", "確認済み", "要修正"]},
+            "checked_at": {"type": ["string", "null"]},
+            "notes": {"type": "string"}
+          },
+          "additionalProperties": false
+        },
+        "open_questions": {"type": "array", "items": {"type": "string"}},
+        "disputes": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "relation": {
+      "type": "object",
+      "required": ["from", "to", "type", "status"],
+      "properties": {
+        "from": {"$ref": "#/$defs/id"},
+        "to": {"$ref": "#/$defs/id"},
+        "type": {"enum": ["背景", "原因", "契機", "結果", "影響", "対立", "継承", "前身", "比較", "混同注意", "担い手", "構成要素", "同時期"]},
+        "note": {"type": "string"},
+        "evidence": {"type": "string"},
+        "status": {"enum": ["下書き", "確認済み"]}
+      },
+      "additionalProperties": false
+    }
+  }
+}
