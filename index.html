@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="dark">
+<title>日本史学習システム V2｜独立開発環境</title>
+<style>
+  :root{
+    --bg:#0b1020; --card:#121a2e; --line:#26314d; --text:#eef0f5; --dim:#9aa4bd;
+    --gold:#d4bd82; --ok:#6cc58c; --ng:#e07a5f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--text);}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",sans-serif;
+    line-height:1.7; -webkit-text-size-adjust:100%;
+    padding:max(24px,env(safe-area-inset-top)) 16px max(32px,env(safe-area-inset-bottom));
+  }
+  main{max-width:640px;margin:0 auto;}
+  header{margin:8px 0 24px;}
+  h1{margin:0;font-size:clamp(22px,6vw,30px);letter-spacing:.06em;font-weight:700;}
+  .sub{margin:4px 0 0;color:var(--gold);font-size:14px;letter-spacing:.2em;}
+  .status{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--dim);}
+  .status::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--gold);}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 16px;}
+  h2{margin:0 0 12px;font-size:14px;color:var(--dim);font-weight:600;letter-spacing:.08em;}
+  dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:10px 14px;}
+  dt{color:var(--dim);font-size:13px;white-space:nowrap;}
+  dd{margin:0;font-size:14px;word-break:break-all;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+  @media (max-width:420px){ dl{grid-template-columns:1fr;gap:2px;} dd{margin-bottom:10px;} }
+  .verdict{display:flex;gap:10px;align-items:flex-start;font-size:15px;}
+  .mark{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#0b1020;background:var(--dim);}
+  .ok .mark{background:var(--ok);} .ng .mark{background:var(--ng);}
+  .note{margin:10px 0 0;color:var(--dim);font-size:12.5px;}
+  footer{margin-top:24px;color:var(--dim);font-size:12px;text-align:center;}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>日本史学習システム V2</h1>
+    <p class="sub">独立開発環境</p>
+    <div class="status">開発基盤の動作確認中</div>
+  </header>
+
+  <section>
+    <h2>このページの場所</h2>
+    <dl>
+      <dt>V2の公開URL</dt><dd>https://rekishi-memo-lab.github.io/nihonshi-v2/</dd>
+      <dt>location.origin</dt><dd id="origin">（読み込み中）</dd>
+      <dt>location.pathname</dt><dd id="path">（読み込み中）</dd>
+    </dl>
+  </section>
+
+  <section>
+    <h2>V1とのオリジンの分離</h2>
+    <dl>
+      <dt>V1のオリジン</dt><dd>https://rekishi-memo.github.io</dd>
+      <dt>V2のオリジン</dt><dd id="origin2">（読み込み中）</dd>
+    </dl>
+    <div style="height:14px"></div>
+    <div class="verdict" id="verdict"><span class="mark">…</span><span>確認中</span></div>
+    <p class="note">オリジンが異なれば、学習記録（保存領域）・キャッシュ・オフライン機能はブラウザの中でV1と分かれます。このページは何も保存せず、オフライン機能も使っていません。</p>
+  </section>
+
+  <footer>開発用の確認ページ</footer>
+</main>
+<script>
+  (function(){
+    var V1 = "https://rekishi-memo.github.io";
+    var o = location.origin, p = location.pathname;
+    document.getElementById("origin").textContent = o;
+    document.getElementById("origin2").textContent = o;
+    document.getElementById("path").textContent = p;
+    var v = document.getElementById("verdict"), sep = o !== V1;
+    v.className = "verdict " + (sep ? "ok" : "ng");
+    v.innerHTML = sep
+      ? '<span class="mark">✓</span><span>V1とは別のオリジンです（独立しています）</span>'
+      : '<span class="mark">!</span><span>V1と同じオリジンです。独立していません</span>';
+  })();
+</script>
+</body>
+</html>
